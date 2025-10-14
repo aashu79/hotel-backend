@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { createOrder, getOrders } from "../controller/orderController";
-import { authMiddleware } from "../middleware/auth";
+import { authenticateToken } from "../middleware/auth";
 
 const router = Router();
 
-router.post("/createOrder", authMiddleware, createOrder);
-router.get("/getOrders", authMiddleware, getOrders);
+router.post("/createOrder", authenticateToken, createOrder);
+router.get("/getOrders", authenticateToken, getOrders);
 
 export default router;

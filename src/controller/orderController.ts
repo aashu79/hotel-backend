@@ -3,7 +3,7 @@ import prisma from "../config/db";
 
 export const createOrder = async (req: Request, res: Response) => {
   const { orderArray, totalAmount } = req.body;
-  const userId = req.userId;
+  const userId = req.user?.id;
   
   try {
     if (!userId) {
@@ -18,23 +18,25 @@ export const createOrder = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Valid total amount is required" });
     }
 
+    const orderNumber = "ORD-" + Date.now();
+
     // Use transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
       // Create the order
       const order = await tx.order.create({
-        data: { userId, totalAmount },
+        data: { userId, orderNumber, totalAmount },
       });
 
       // Create all order items
       const orderItems = await Promise.all(
-        orderArray.map(async (item) => {
-          const { name, price, quantity, total } = item;
-          return await tx.orderItems.create({
+        orderArray.map(async (item: any) => {
+          const { menuItemId, quantity, price, total } = item;
+          return await tx.orderItem.create({
             data: { 
               orderId: order.id, 
-              itemName: name, 
-              price, 
+              menuItemId, 
               quantity, 
+              price, 
               total 
             },
           });
@@ -49,11 +51,11 @@ export const createOrder = async (req: Request, res: Response) => {
       message: "Order created successfully",
       order: {
         orderId: result.order.id,
-        orderDate: result.order.orderDate,
+        orderDate: result.order.createdAt,
         totalAmount: result.order.totalAmount,
-        items: result.orderItems.map(item => ({
+        items: result.orderItems.map((item: any) => ({
           id: item.id,
-          itemName: item.itemName,
+          menuItemId: item.menuItemId,
           quantity: item.quantity,
           price: item.price,
           total: item.total
@@ -67,7 +69,7 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 export const getOrders = async (req: Request, res: Response) => {
-  const userId = req.userId
+  const userId = req.user?.id
   try {
     if(!userId){
       return res.status(401).json({ message: "Unauthorized" });
@@ -77,21 +79,21 @@ export const getOrders = async (req: Request, res: Response) => {
     const orders = await prisma.order.findMany({ 
       where: { userId },
       include: {
-        orderItems: true
+        items: true
       },
       orderBy: {
-        orderDate: 'desc' // Most recent orders first
+        createdAt: 'desc' // Most recent orders first
       }
     });
 
     // Group orders with their items
     const groupedOrders = orders.map(order => ({
       orderId: order.id,
-      orderDate: order.orderDate,
+      orderDate: order.createdAt,
       totalAmount: order.totalAmount,
-      items: order.orderItems.map(item => ({
+      items: order.items.map((item: any) => ({
         id: item.id,
-        itemName: item.itemName,
+        menuItemId: item.menuItemId,
         quantity: item.quantity,
         price: item.price,
         total: item.total

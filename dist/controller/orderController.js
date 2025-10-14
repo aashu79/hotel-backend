@@ -1,20 +1,11 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOrders = exports.createOrder = void 0;
 const db_1 = __importDefault(require("../config/db"));
-const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createOrder = async (req, res) => {
     const { orderArray, totalAmount } = req.body;
     const userId = req.userId;
     try {
@@ -27,16 +18,13 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (!totalAmount || totalAmount <= 0) {
             return res.status(400).json({ message: "Valid total amount is required" });
         }
-        // Use transaction to ensure data consistency
-        const result = yield db_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-            // Create the order
-            const order = yield tx.order.create({
+        const result = await db_1.default.$transaction(async (tx) => {
+            const order = await tx.order.create({
                 data: { userId, totalAmount },
             });
-            // Create all order items
-            const orderItems = yield Promise.all(orderArray.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+            const orderItems = await Promise.all(orderArray.map(async (item) => {
                 const { name, price, quantity, total } = item;
-                return yield tx.orderItems.create({
+                return await tx.orderItems.create({
                     data: {
                         orderId: order.id,
                         itemName: name,
@@ -45,10 +33,9 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                         total
                     },
                 });
-            })));
+            }));
             return { order, orderItems };
-        }));
-        // Return the created order with items
+        });
         return res.status(201).json({
             message: "Order created successfully",
             order: {
@@ -69,25 +56,23 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.error('Error creating order:', error);
         return res.status(500).json({ message: "Internal server error" });
     }
-});
+};
 exports.createOrder = createOrder;
-const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getOrders = async (req, res) => {
     const userId = req.userId;
     try {
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        // Get orders with their items grouped by order ID
-        const orders = yield db_1.default.order.findMany({
+        const orders = await db_1.default.order.findMany({
             where: { userId },
             include: {
                 orderItems: true
             },
             orderBy: {
-                orderDate: 'desc' // Most recent orders first
+                orderDate: 'desc'
             }
         });
-        // Group orders with their items
         const groupedOrders = orders.map(order => ({
             orderId: order.id,
             orderDate: order.orderDate,
@@ -109,5 +94,6 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.error('Error fetching orders:', error);
         return res.status(500).json({ message: "Internal server error" });
     }
-});
+};
 exports.getOrders = getOrders;
+//# sourceMappingURL=orderController.js.map
