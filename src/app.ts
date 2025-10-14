@@ -14,7 +14,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:4000"],
+    origin: ["https://hotel-himalyan.netlify.app", "http://localhost:4000"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
