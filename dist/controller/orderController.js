@@ -5,94 +5,112 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOrders = exports.createOrder = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const errors_1 = require("../types/errors");
 const createOrder = async (req, res) => {
-    const { orderArray, totalAmount } = req.body;
-    const userId = req.userId;
     try {
+        const { orderArray, totalAmount } = req.body;
+        const userId = req.user?.id;
         if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
+            throw new errors_1.AuthenticationError("User authentication required");
         }
         if (!orderArray || !Array.isArray(orderArray) || orderArray.length === 0) {
-            return res.status(400).json({ message: "Order items are required" });
+            throw new errors_1.ValidationError("Order items are required");
         }
         if (!totalAmount || totalAmount <= 0) {
-            return res.status(400).json({ message: "Valid total amount is required" });
+            throw new errors_1.ValidationError("Valid total amount is required");
         }
+        const orderNumber = `ORD-${Date.now()}-${userId}`;
         const result = await db_1.default.$transaction(async (tx) => {
             const order = await tx.order.create({
-                data: { userId, totalAmount },
+                data: {
+                    userId,
+                    totalAmount,
+                    orderNumber,
+                },
             });
             const orderItems = await Promise.all(orderArray.map(async (item) => {
-                const { name, price, quantity, total } = item;
-                return await tx.orderItems.create({
+                const { menuItemId, price, quantity, total } = item;
+                return await tx.orderItem.create({
                     data: {
                         orderId: order.id,
-                        itemName: name,
+                        menuItemId,
                         price,
                         quantity,
-                        total
+                        total,
                     },
                 });
             }));
             return { order, orderItems };
         });
-        return res.status(201).json({
+        res.status(201).json({
+            success: true,
             message: "Order created successfully",
             order: {
                 orderId: result.order.id,
-                orderDate: result.order.orderDate,
+                orderNumber: result.order.orderNumber,
+                orderDate: result.order.createdAt,
                 totalAmount: result.order.totalAmount,
-                items: result.orderItems.map(item => ({
+                status: result.order.status,
+                items: result.orderItems.map((item) => ({
                     id: item.id,
-                    itemName: item.itemName,
+                    menuItemId: item.menuItemId,
                     quantity: item.quantity,
                     price: item.price,
-                    total: item.total
-                }))
-            }
+                    total: item.total,
+                })),
+            },
         });
     }
     catch (error) {
-        console.error('Error creating order:', error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error creating order:", error);
+        throw error;
     }
 };
 exports.createOrder = createOrder;
 const getOrders = async (req, res) => {
-    const userId = req.userId;
     try {
+        const userId = req.user?.id;
         if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
+            throw new errors_1.AuthenticationError("User authentication required");
         }
         const orders = await db_1.default.order.findMany({
             where: { userId },
             include: {
-                orderItems: true
+                items: {
+                    include: {
+                        menuItem: true,
+                    },
+                },
             },
             orderBy: {
-                orderDate: 'desc'
-            }
+                createdAt: "desc",
+            },
         });
-        const groupedOrders = orders.map(order => ({
+        const groupedOrders = orders.map((order) => ({
             orderId: order.id,
-            orderDate: order.orderDate,
+            orderNumber: order.orderNumber,
+            orderDate: order.createdAt,
             totalAmount: order.totalAmount,
-            items: order.orderItems.map(item => ({
+            status: order.status,
+            specialNotes: order.specialNotes,
+            items: order.items.map((item) => ({
                 id: item.id,
-                itemName: item.itemName,
+                menuItemId: item.menuItemId,
+                menuItemName: item.menuItem.name,
                 quantity: item.quantity,
                 price: item.price,
-                total: item.total
-            }))
+                total: item.total,
+            })),
         }));
-        return res.status(200).json({
+        res.status(200).json({
+            success: true,
             message: "Orders fetched successfully",
-            orders: groupedOrders
+            orders: groupedOrders,
         });
     }
     catch (error) {
-        console.error('Error fetching orders:', error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Error fetching orders:", error);
+        throw error;
     }
 };
 exports.getOrders = getOrders;

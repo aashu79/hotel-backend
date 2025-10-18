@@ -1,7 +1,8 @@
-import { Response } from "express";
-import { MulterRequest } from "../types/multerRequest";
-export declare const createMenuCategory: (req: MulterRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
-export declare const getMenuCategories: (req: MulterRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
-export declare const updateMenuCategory: (req: MulterRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
-export declare const deleteMenuCategory: (req: MulterRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
+import { Response, NextFunction, Request } from "express";
+export declare const createMenuCategory: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getMenuCategories: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getMenuCategoryById: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const updateMenuCategory: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const toggleMenuCategoryStatus: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const deleteMenuCategory: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=menuCategoryController.d.ts.map

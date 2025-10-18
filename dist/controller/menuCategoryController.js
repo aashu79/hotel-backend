@@ -1,100 +1,174 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMenuCategory = exports.updateMenuCategory = exports.getMenuCategories = exports.createMenuCategory = void 0;
+exports.deleteMenuCategory = exports.toggleMenuCategoryStatus = exports.updateMenuCategory = exports.getMenuCategoryById = exports.getMenuCategories = exports.createMenuCategory = void 0;
 const client_1 = require("@prisma/client");
-const express_validator_1 = require("express-validator");
-const cloudinary_1 = __importDefault(require("../config/cloudinary"));
+const errors_1 = require("../types/errors");
 const prisma = new client_1.PrismaClient();
-const createMenuCategory = async (req, res) => {
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+const createMenuCategory = async (req, res, next) => {
     try {
-        let imageUrl = undefined;
-        if (req.file) {
-            const upload = await cloudinary_1.default.uploader.upload(req.file.path, {
-                folder: "menu_categories",
-            });
-            imageUrl = upload.secure_url;
-        }
         const { name, description, sortOrder, isActive } = req.body;
-        const data = {
-            name,
-            description,
-            sortOrder: sortOrder ? Number(sortOrder) : 0,
-            isActive: isActive !== undefined ? Boolean(isActive) : true,
-        };
-        if (imageUrl)
-            data.imageUrl = imageUrl;
-        const category = await prisma.menuCategory.create({ data });
-        return res.status(201).json(category);
+        if (!name || name.trim() === "") {
+            throw new errors_1.ValidationError("Category name is required");
+        }
+        const category = await prisma.menuCategory.create({
+            data: {
+                name: name.trim(),
+                description: description?.trim() || null,
+                sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
+                isActive: isActive !== undefined ? Boolean(isActive) : true,
+            },
+        });
+        res.status(201).json({
+            success: true,
+            message: "Menu category created successfully",
+            data: category,
+        });
     }
     catch (err) {
-        return res.status(500).json({ message: "Server error", error: err });
+        console.error("Error creating menu category:", err);
+        next(err);
     }
 };
 exports.createMenuCategory = createMenuCategory;
-const getMenuCategories = async (req, res) => {
+const getMenuCategories = async (req, res, next) => {
     try {
+        const { includeInactive } = req.query;
+        const where = includeInactive === "true" ? {} : { isActive: true };
         const categories = await prisma.menuCategory.findMany({
+            where,
             orderBy: { sortOrder: "asc" },
+            include: {
+                _count: {
+                    select: { items: true },
+                },
+            },
         });
-        return res.json(categories);
+        res.json({
+            success: true,
+            data: categories,
+        });
     }
     catch (err) {
-        return res.status(500).json({ message: "Server error", error: err });
+        console.error("Error fetching menu categories:", err);
+        next(err);
     }
 };
 exports.getMenuCategories = getMenuCategories;
-const updateMenuCategory = async (req, res) => {
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+const getMenuCategoryById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        let imageUrl = undefined;
-        if (req.file) {
-            const upload = await cloudinary_1.default.uploader.upload(req.file.path, {
-                folder: "menu_categories",
-            });
-            imageUrl = upload.secure_url;
+        const category = await prisma.menuCategory.findUnique({
+            where: { id: Number(id) },
+            include: {
+                items: {
+                    orderBy: { sortOrder: "asc" },
+                },
+            },
+        });
+        if (!category) {
+            throw new errors_1.NotFoundError("Menu category not found");
         }
+        res.json({
+            success: true,
+            data: category,
+        });
+    }
+    catch (err) {
+        console.error("Error fetching menu category:", err);
+        next(err);
+    }
+};
+exports.getMenuCategoryById = getMenuCategoryById;
+const updateMenuCategory = async (req, res, next) => {
+    try {
+        const { id } = req.params;
         const { name, description, sortOrder, isActive } = req.body;
+        const existingCategory = await prisma.menuCategory.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!existingCategory) {
+            throw new errors_1.NotFoundError("Menu category not found");
+        }
         const data = {};
-        if (name !== undefined)
-            data.name = name;
-        if (description !== undefined)
-            data.description = description;
-        if (sortOrder !== undefined)
+        if (name !== undefined && name.trim() !== "") {
+            data.name = name.trim();
+        }
+        if (description !== undefined) {
+            data.description = description?.trim() || null;
+        }
+        if (sortOrder !== undefined) {
             data.sortOrder = Number(sortOrder);
-        if (isActive !== undefined)
+        }
+        if (isActive !== undefined) {
             data.isActive = Boolean(isActive);
-        if (imageUrl)
-            data.imageUrl = imageUrl;
+        }
         const updated = await prisma.menuCategory.update({
             where: { id: Number(id) },
             data,
         });
-        return res.json(updated);
+        res.json({
+            success: true,
+            message: "Menu category updated successfully",
+            data: updated,
+        });
     }
     catch (err) {
-        return res.status(500).json({ message: "Server error", error: err });
+        console.error("Error updating menu category:", err);
+        next(err);
     }
 };
 exports.updateMenuCategory = updateMenuCategory;
-const deleteMenuCategory = async (req, res) => {
+const toggleMenuCategoryStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
-        await prisma.menuCategory.delete({ where: { id: Number(id) } });
-        return res.json({ message: "Category deleted" });
+        const category = await prisma.menuCategory.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!category) {
+            throw new errors_1.NotFoundError("Menu category not found");
+        }
+        const updated = await prisma.menuCategory.update({
+            where: { id: Number(id) },
+            data: { isActive: !category.isActive },
+        });
+        res.json({
+            success: true,
+            message: `Category ${updated.isActive ? "activated" : "deactivated"} successfully`,
+            data: updated,
+        });
     }
     catch (err) {
-        return res.status(500).json({ message: "Server error", error: err });
+        console.error("Error toggling menu category status:", err);
+        next(err);
+    }
+};
+exports.toggleMenuCategoryStatus = toggleMenuCategoryStatus;
+const deleteMenuCategory = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const category = await prisma.menuCategory.findUnique({
+            where: { id: Number(id) },
+            include: {
+                _count: {
+                    select: { items: true },
+                },
+            },
+        });
+        if (!category) {
+            throw new errors_1.NotFoundError("Menu category not found");
+        }
+        if (category._count.items > 0) {
+            throw new errors_1.ValidationError(`Cannot delete category with ${category._count.items} menu items. Please delete or reassign the items first.`);
+        }
+        await prisma.menuCategory.delete({ where: { id: Number(id) } });
+        res.json({
+            success: true,
+            message: "Category deleted successfully",
+        });
+    }
+    catch (err) {
+        console.error("Error deleting menu category:", err);
+        next(err);
     }
 };
 exports.deleteMenuCategory = deleteMenuCategory;

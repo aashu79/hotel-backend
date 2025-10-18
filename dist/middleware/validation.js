@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleValidationErrors = exports.validateVerifyOTP = exports.validateLoginStaffAdmin = exports.validateRegisterStaffAdmin = exports.validateLoginCustomer = exports.validateRegisterCustomer = void 0;
 const express_validator_1 = require("express-validator");
+const errors_1 = require("../types/errors");
 exports.validateRegisterCustomer = [
     (0, express_validator_1.body)("name")
         .trim()
@@ -48,16 +49,20 @@ exports.validateVerifyOTP = [
         .withMessage("Valid 6-digit OTP required"),
 ];
 const handleValidationErrors = (req, res, next) => {
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        res.status(400).json({
-            success: false,
-            message: "Validation failed",
-            errors: errors.array(),
-        });
-        return;
+    try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            const errorMessages = errors
+                .array()
+                .map((err) => err.msg)
+                .join(", ");
+            throw new errors_1.ValidationError(`Validation failed: ${errorMessages}`);
+        }
+        next();
     }
-    next();
+    catch (error) {
+        next(error);
+    }
 };
 exports.handleValidationErrors = handleValidationErrors;
 //# sourceMappingURL=validation.js.map

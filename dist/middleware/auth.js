@@ -6,28 +6,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorizeRoles = exports.authenticateToken = void 0;
 const jwtService_1 = __importDefault(require("../utils/jwtService"));
 const client_1 = require("@prisma/client");
+const errors_1 = require("../types/errors");
 const prisma = new client_1.PrismaClient();
 const authenticateToken = async (req, res, next) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
-        res.status(401).json({
-            success: false,
-            message: "Access token required",
-        });
-        return;
-    }
     try {
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        if (!token) {
+            throw new errors_1.AuthenticationError("Access token required");
+        }
         const decoded = jwtService_1.default.verifyToken(token);
         const user = await prisma.user.findUnique({
             where: { id: decoded.id },
         });
         if (!user) {
-            res.status(401).json({
-                success: false,
-                message: "User not found",
-            });
-            return;
+            throw new errors_1.AuthenticationError("User not found");
         }
         req.user = {
             id: user.id,
@@ -36,30 +29,24 @@ const authenticateToken = async (req, res, next) => {
         next();
     }
     catch (error) {
-        res.status(403).json({
-            success: false,
-            message: "Invalid or expired token",
-        });
+        next(error);
     }
 };
 exports.authenticateToken = authenticateToken;
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if (!req.user) {
-            res.status(401).json({
-                success: false,
-                message: "Authentication required",
-            });
-            return;
+        try {
+            if (!req.user) {
+                throw new errors_1.AuthenticationError("Authentication required");
+            }
+            if (!roles.includes(req.user.role)) {
+                throw new errors_1.AuthorizationError("Insufficient permissions");
+            }
+            next();
         }
-        if (!roles.includes(req.user.role)) {
-            res.status(403).json({
-                success: false,
-                message: "Insufficient permissions",
-            });
-            return;
+        catch (error) {
+            next(error);
         }
-        next();
     };
 };
 exports.authorizeRoles = authorizeRoles;

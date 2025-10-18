@@ -1,3 +1,4 @@
+/// <reference types="cookie-parser" />
 import { Request, Response } from "express";
 declare class AuthController {
     sendOTPForRegistration(req: Request, res: Response): Promise<void>;
