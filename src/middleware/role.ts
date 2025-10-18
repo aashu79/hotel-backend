@@ -7,6 +7,7 @@ export function requireStaffOrAdmin(
   next: NextFunction
 ) {
   const user = req.user;
+  console.log("User in requireStaffOrAdmin:", user);
   if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.STAFF)) {
     return res
       .status(403)

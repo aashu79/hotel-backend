@@ -1,111 +1,145 @@
 import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../middleware/auth";
 import prisma from "../config/db";
+import { ValidationError, AuthenticationError } from "../types/errors";
 
-export const createOrder = async (req: Request, res: Response) => {
-  const { orderArray, totalAmount } = req.body;
-  const userId = req.user?.id;
-  
+export const createOrder = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
+    const { orderArray, totalAmount } = req.body;
+    const userId = req.user?.id;
+
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      throw new AuthenticationError("User authentication required");
     }
 
     if (!orderArray || !Array.isArray(orderArray) || orderArray.length === 0) {
-      return res.status(400).json({ message: "Order items are required" });
+      throw new ValidationError("Order items are required");
     }
 
     if (!totalAmount || totalAmount <= 0) {
-      return res.status(400).json({ message: "Valid total amount is required" });
+      throw new ValidationError("Valid total amount is required");
     }
 
-    const orderNumber = "ORD-" + Date.now();
+    // Generate unique order number
+    const orderNumber = `ORD-${Date.now()}-${userId}`;
 
     // Use transaction to ensure data consistency
     const result = await prisma.$transaction(async (tx) => {
       // Create the order
       const order = await tx.order.create({
-        data: { userId, orderNumber, totalAmount },
+        data: {
+          userId,
+          totalAmount,
+          orderNumber,
+        },
       });
 
       // Create all order items
       const orderItems = await Promise.all(
-        orderArray.map(async (item: any) => {
-          const { menuItemId, quantity, price, total } = item;
-          return await tx.orderItem.create({
-            data: { 
-              orderId: order.id, 
-              menuItemId, 
-              quantity, 
-              price, 
-              total 
-            },
-          });
-        })
+        orderArray.map(
+          async (item: {
+            menuItemId: number;
+            name: string;
+            price: number;
+            quantity: number;
+            total: number;
+          }) => {
+            const { menuItemId, price, quantity, total } = item;
+            return await tx.orderItem.create({
+              data: {
+                orderId: order.id,
+                menuItemId,
+                price,
+                quantity,
+                total,
+              },
+            });
+          }
+        )
       );
 
       return { order, orderItems };
     });
 
     // Return the created order with items
-    return res.status(201).json({ 
+    res.status(201).json({
+      success: true,
       message: "Order created successfully",
       order: {
         orderId: result.order.id,
+        orderNumber: result.order.orderNumber,
         orderDate: result.order.createdAt,
         totalAmount: result.order.totalAmount,
-        items: result.orderItems.map((item: any) => ({
+        status: result.order.status,
+        items: result.orderItems.map((item) => ({
           id: item.id,
           menuItemId: item.menuItemId,
           quantity: item.quantity,
           price: item.price,
-          total: item.total
-        }))
-      }
+          total: item.total,
+        })),
+      },
     });
   } catch (error) {
-    console.error('Error creating order:', error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Error creating order:", error);
+    throw error;
   }
 };
 
-export const getOrders = async (req: Request, res: Response) => {
-  const userId = req.user?.id
+export const getOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
-    if(!userId){
-      return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AuthenticationError("User authentication required");
     }
-    
+
     // Get orders with their items grouped by order ID
-    const orders = await prisma.order.findMany({ 
+    const orders = await prisma.order.findMany({
       where: { userId },
       include: {
-        items: true
+        items: {
+          include: {
+            menuItem: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc' // Most recent orders first
-      }
+        createdAt: "desc", // Most recent orders first
+      },
     });
 
     // Group orders with their items
-    const groupedOrders = orders.map(order => ({
+    const groupedOrders = orders.map((order) => ({
       orderId: order.id,
+      orderNumber: order.orderNumber,
       orderDate: order.createdAt,
       totalAmount: order.totalAmount,
-      items: order.items.map((item: any) => ({
+      status: order.status,
+      specialNotes: order.specialNotes,
+      items: order.items.map((item) => ({
         id: item.id,
         menuItemId: item.menuItemId,
+        menuItemName: item.menuItem.name,
         quantity: item.quantity,
         price: item.price,
-        total: item.total
-      }))
+        total: item.total,
+      })),
     }));
 
-    return res.status(200).json({ 
-      message: "Orders fetched successfully", 
-      orders: groupedOrders 
+    res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully",
+      orders: groupedOrders,
     });
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching orders:", error);
+    throw error;
   }
 };

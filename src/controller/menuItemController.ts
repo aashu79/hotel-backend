@@ -1,16 +1,16 @@
-import { Response } from "express";
+import { Response, NextFunction, Request } from "express";
 import { PrismaClient } from "@prisma/client";
-import { validationResult } from "express-validator";
 import cloudinary from "../config/cloudinary";
 import { MulterRequest } from "../types/multerRequest";
+import { ValidationError, NotFoundError } from "../types/errors";
 
 const prisma = new PrismaClient();
 
-export const createMenuItem = async (req: MulterRequest, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+export const createMenuItem = async (
+  req: MulterRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     let imageUrl: string | undefined = undefined;
     if (req.file) {
@@ -19,6 +19,7 @@ export const createMenuItem = async (req: MulterRequest, res: Response) => {
       });
       imageUrl = upload.secure_url;
     }
+
     const {
       name,
       description,
@@ -29,42 +30,160 @@ export const createMenuItem = async (req: MulterRequest, res: Response) => {
       sortOrder,
       categoryId,
     } = req.body;
-    const data: any = {
-      name,
-      description,
-      price: Number(price),
-      isVegetarian: isVegetarian !== undefined ? Boolean(isVegetarian) : true,
-      isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
-      prepTimeMins: prepTimeMins ? Number(prepTimeMins) : null,
-      sortOrder: sortOrder ? Number(sortOrder) : 0,
-      categoryId: Number(categoryId),
-    };
-    if (imageUrl) data.imageUrl = imageUrl;
-    const item = await prisma.menuItem.create({ data });
-    return res.status(201).json(item);
-  } catch (err) {
-    return res.status(500).json({ message: "Server error", error: err });
-  }
-};
 
-export const getMenuItems = async (req: MulterRequest, res: Response) => {
-  try {
-    const items = await prisma.menuItem.findMany({
-      orderBy: { sortOrder: "asc" },
+    // Validate required fields
+    if (!name || name.trim() === "") {
+      throw new ValidationError("Menu item name is required");
+    }
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
+      throw new ValidationError("Valid price is required");
+    }
+    if (!categoryId || isNaN(Number(categoryId))) {
+      throw new ValidationError("Valid category ID is required");
+    }
+
+    // Verify category exists
+    const categoryExists = await prisma.menuCategory.findUnique({
+      where: { id: Number(categoryId) },
     });
-    return res.json(items);
+
+    if (!categoryExists) {
+      throw new NotFoundError("Category not found");
+    }
+
+    const item = await prisma.menuItem.create({
+      data: {
+        name: name.trim(),
+        description: description?.trim() || null,
+        price: Number(price),
+        isVegetarian: isVegetarian !== undefined ? Boolean(isVegetarian) : true,
+        isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
+        prepTimeMins: prepTimeMins ? Number(prepTimeMins) : null,
+        sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
+        categoryId: Number(categoryId),
+        imageUrl: imageUrl || null,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Menu item created successfully",
+      data: item,
+    });
   } catch (err) {
-    return res.status(500).json({ message: "Server error", error: err });
+    console.error("Error creating menu item:", err);
+    next(err);
   }
 };
 
-export const updateMenuItem = async (req: MulterRequest, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+export const getMenuItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { categoryId, isVegetarian, isAvailable } = req.query;
+
+    // Build filter conditions
+    const where: any = {};
+    if (categoryId) {
+      where.categoryId = Number(categoryId);
+    }
+    if (isVegetarian !== undefined) {
+      where.isVegetarian = isVegetarian === "true";
+    }
+    if (isAvailable !== undefined) {
+      where.isAvailable = isAvailable === "true";
+    }
+
+    const items = await prisma.menuItem.findMany({
+      where,
+      orderBy: { sortOrder: "asc" },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      count: items.length,
+      data: items,
+    });
+  } catch (err) {
+    console.error("Error fetching menu items:", err);
+    next(err);
   }
+};
+
+export const getMenuItemById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { id } = req.params;
+
+    const item = await prisma.menuItem.findUnique({
+      where: { id: Number(id) },
+      include: {
+        category: true,
+        reviews: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!item) {
+      throw new NotFoundError("Menu item not found");
+    }
+
+    res.json({
+      success: true,
+      data: item,
+    });
+  } catch (err) {
+    console.error("Error fetching menu item:", err);
+    next(err);
+  }
+};
+
+export const updateMenuItem = async (
+  req: MulterRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    // Check if item exists
+    const existingItem = await prisma.menuItem.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!existingItem) {
+      throw new NotFoundError("Menu item not found");
+    }
+
     let imageUrl: string | undefined = undefined;
     if (req.file) {
       const upload = await cloudinary.uploader.upload(req.file.path, {
@@ -72,6 +191,7 @@ export const updateMenuItem = async (req: MulterRequest, res: Response) => {
       });
       imageUrl = upload.secure_url;
     }
+
     const {
       name,
       description,
@@ -82,32 +202,162 @@ export const updateMenuItem = async (req: MulterRequest, res: Response) => {
       sortOrder,
       categoryId,
     } = req.body;
+
+    // Build update data
     const data: any = {};
-    if (name !== undefined) data.name = name;
-    if (description !== undefined) data.description = description;
-    if (price !== undefined) data.price = Number(price);
-    if (isVegetarian !== undefined) data.isVegetarian = Boolean(isVegetarian);
-    if (isAvailable !== undefined) data.isAvailable = Boolean(isAvailable);
-    if (prepTimeMins !== undefined) data.prepTimeMins = Number(prepTimeMins);
-    if (sortOrder !== undefined) data.sortOrder = Number(sortOrder);
-    if (categoryId !== undefined) data.categoryId = Number(categoryId);
-    if (imageUrl) data.imageUrl = imageUrl;
+    if (name !== undefined && name.trim() !== "") {
+      data.name = name.trim();
+    }
+    if (description !== undefined) {
+      data.description = description?.trim() || null;
+    }
+    if (price !== undefined) {
+      if (isNaN(Number(price)) || Number(price) <= 0) {
+        throw new ValidationError("Valid price is required");
+      }
+      data.price = Number(price);
+    }
+    if (isVegetarian !== undefined) {
+      data.isVegetarian = Boolean(isVegetarian);
+    }
+    if (isAvailable !== undefined) {
+      data.isAvailable = Boolean(isAvailable);
+    }
+    if (prepTimeMins !== undefined) {
+      data.prepTimeMins = prepTimeMins ? Number(prepTimeMins) : null;
+    }
+    if (sortOrder !== undefined) {
+      data.sortOrder = Number(sortOrder);
+    }
+    if (categoryId !== undefined) {
+      const categoryExists = await prisma.menuCategory.findUnique({
+        where: { id: Number(categoryId) },
+      });
+      if (!categoryExists) {
+        throw new NotFoundError("Category not found");
+      }
+      data.categoryId = Number(categoryId);
+    }
+    if (imageUrl) {
+      data.imageUrl = imageUrl;
+    }
+
     const updated = await prisma.menuItem.update({
       where: { id: Number(id) },
       data,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
-    return res.json(updated);
+
+    res.json({
+      success: true,
+      message: "Menu item updated successfully",
+      data: updated,
+    });
   } catch (err) {
-    return res.status(500).json({ message: "Server error", error: err });
+    console.error("Error updating menu item:", err);
+    next(err);
   }
 };
 
-export const deleteMenuItem = async (req: MulterRequest, res: Response) => {
+export const toggleMenuItemAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.menuItem.delete({ where: { id: Number(id) } });
-    return res.json({ message: "Menu item deleted" });
+
+    const item = await prisma.menuItem.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!item) {
+      throw new NotFoundError("Menu item not found");
+    }
+
+    const updated = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: { isAvailable: !item.isAvailable },
+    });
+
+    res.json({
+      success: true,
+      message: `Menu item ${
+        updated.isAvailable ? "is now available" : "is now unavailable"
+      }`,
+      data: updated,
+    });
   } catch (err) {
-    return res.status(500).json({ message: "Server error", error: err });
+    console.error("Error toggling menu item availability:", err);
+    next(err);
+  }
+};
+
+export const toggleMenuItemVegetarian = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const item = await prisma.menuItem.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!item) {
+      throw new NotFoundError("Menu item not found");
+    }
+
+    const updated = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: { isVegetarian: !item.isVegetarian },
+    });
+
+    res.json({
+      success: true,
+      message: `Menu item marked as ${
+        updated.isVegetarian ? "vegetarian" : "non-vegetarian"
+      }`,
+      data: updated,
+    });
+  } catch (err) {
+    console.error("Error toggling menu item vegetarian status:", err);
+    next(err);
+  }
+};
+
+export const deleteMenuItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const item = await prisma.menuItem.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!item) {
+      throw new NotFoundError("Menu item not found");
+    }
+
+    await prisma.menuItem.delete({ where: { id: Number(id) } });
+
+    res.json({
+      success: true,
+      message: "Menu item deleted successfully",
+    });
+  } catch (err) {
+    console.error("Error deleting menu item:", err);
+    next(err);
   }
 };

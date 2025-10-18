@@ -5,6 +5,7 @@ import {
   validateRegisterStaffAdmin,
   validateLoginStaffAdmin,
   validateVerifyOTP,
+  handleValidationErrors,
 } from "../middleware/validation";
 import { otpRateLimiter, loginRateLimiter } from "../middleware/rateLimiter";
 import authController from "../controller/authController";
@@ -16,11 +17,13 @@ router.post(
   "/customer/register/send-otp",
   otpRateLimiter,
   validateRegisterCustomer,
+  handleValidationErrors,
   authController.sendOTPForRegistration
 );
 router.post(
   "/customer/register/verify-otp",
   validateVerifyOTP,
+  handleValidationErrors,
   authController.verifyOTPAndRegister
 );
 
@@ -28,11 +31,13 @@ router.post(
   "/customer/login/send-otp",
   otpRateLimiter,
   validateLoginCustomer,
+  handleValidationErrors,
   authController.sendOTPForLogin
 );
 router.post(
   "/customer/login/verify-otp",
   validateVerifyOTP,
+  handleValidationErrors,
   authController.verifyOTPAndLogin
 );
 
@@ -40,12 +45,14 @@ router.post(
 router.post(
   "/staff/register",
   validateRegisterStaffAdmin,
+  handleValidationErrors,
   authController.registerStaffAdmin
 );
 router.post(
   "/staff/login",
   loginRateLimiter,
   validateLoginStaffAdmin,
+  handleValidationErrors,
   authController.loginStaffAdmin
 );
 

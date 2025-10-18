@@ -2,33 +2,55 @@ import { Router } from "express";
 import {
   createMenuCategory,
   getMenuCategories,
+  getMenuCategoryById,
   updateMenuCategory,
+  toggleMenuCategoryStatus,
   deleteMenuCategory,
 } from "../controller/menuCategoryController";
-import { requireStaffOrAdmin } from "../middleware/role";
+import { authenticateToken, authorizeRoles } from "../middleware/auth";
 import {
   createCategoryValidator,
   updateCategoryValidator,
 } from "../middleware/categoryValidation";
-import { upload } from "../middleware/upload";
+import { handleValidationErrors } from "../middleware/validation";
 
 const router = Router();
 
+// Public routes
 router.get("/", getMenuCategories);
+router.get("/:id", getMenuCategoryById);
+
+// Protected routes (Staff & Admin only)
 router.post(
   "/",
-  requireStaffOrAdmin,
-  upload.single("image"),
+  authenticateToken,
+  authorizeRoles("STAFF", "ADMIN"),
   createCategoryValidator,
+  handleValidationErrors,
   createMenuCategory
 );
+
 router.put(
   "/:id",
-  requireStaffOrAdmin,
-  upload.single("image"),
+  authenticateToken,
+  authorizeRoles("STAFF", "ADMIN"),
   updateCategoryValidator,
+  handleValidationErrors,
   updateMenuCategory
 );
-router.delete("/:id", requireStaffOrAdmin, deleteMenuCategory);
+
+router.patch(
+  "/:id/toggle-status",
+  authenticateToken,
+  authorizeRoles("STAFF", "ADMIN"),
+  toggleMenuCategoryStatus
+);
+
+router.delete(
+  "/:id",
+  authenticateToken,
+  authorizeRoles("STAFF", "ADMIN"),
+  deleteMenuCategory
+);
 
 export default router;

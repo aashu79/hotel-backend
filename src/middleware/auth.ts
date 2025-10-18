@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import JWTService from "../utils/jwtService";
 import { PrismaClient } from "@prisma/client";
+import { AuthenticationError, AuthorizationError } from "../types/errors";
 
 const prisma = new PrismaClient();
 
@@ -16,29 +17,21 @@ export const authenticateToken = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
-
-  if (!token) {
-    res.status(401).json({
-      success: false,
-      message: "Access token required",
-    });
-    return;
-  }
-
   try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+
+    if (!token) {
+      throw new AuthenticationError("Access token required");
+    }
+
     const decoded = JWTService.verifyToken(token);
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
     });
 
     if (!user) {
-      res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
+      throw new AuthenticationError("User not found");
     }
 
     req.user = {
@@ -47,10 +40,7 @@ export const authenticateToken = async (
     };
     next();
   } catch (error) {
-    res.status(403).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
+    next(error);
   }
 };
 
@@ -62,22 +52,18 @@ export const authorizeRoles = (
     res: Response,
     next: NextFunction
   ): void => {
-    if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-      return;
-    }
+    try {
+      if (!req.user) {
+        throw new AuthenticationError("Authentication required");
+      }
 
-    if (!roles.includes(req.user.role)) {
-      res.status(403).json({
-        success: false,
-        message: "Insufficient permissions",
-      });
-      return;
-    }
+      if (!roles.includes(req.user.role)) {
+        throw new AuthorizationError("Insufficient permissions");
+      }
 
-    next();
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 };
