@@ -2,7 +2,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: number;
+        id: string;
         role: "CUSTOMER" | "STAFF" | "ADMIN";
       };
     }
@@ -28,6 +28,6 @@ export interface OTPVerificationData {
   otp: string;
 }
 export interface JWTPayload {
-  id: number;
+  id: string;
   role: "CUSTOMER" | "STAFF" | "ADMIN";
 }

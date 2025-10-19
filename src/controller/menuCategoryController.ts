@@ -10,7 +10,7 @@ export const createMenuCategory = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { name, description, sortOrder, isActive } = req.body;
+    const { name, description, isActive } = req.body;
 
     // Validate required fields
     if (!name || name.trim() === "") {
@@ -21,7 +21,6 @@ export const createMenuCategory = async (
       data: {
         name: name.trim(),
         description: description?.trim() || null,
-        sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
     });
@@ -49,11 +48,9 @@ export const getMenuCategories = async (
 
     const categories = await prisma.menuCategory.findMany({
       where,
-      orderBy: { sortOrder: "asc" },
+      orderBy: { name: "asc" },
       include: {
-        _count: {
-          select: { items: true },
-        },
+        items: true,
       },
     });
 
@@ -76,11 +73,9 @@ export const getMenuCategoryById = async (
     const { id } = req.params;
 
     const category = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
+      where: { id },
       include: {
-        items: {
-          orderBy: { sortOrder: "asc" },
-        },
+        items: true,
       },
     });
 
@@ -109,7 +104,7 @@ export const updateMenuCategory = async (
 
     // Check if category exists
     const existingCategory = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!existingCategory) {
@@ -124,15 +119,13 @@ export const updateMenuCategory = async (
     if (description !== undefined) {
       data.description = description?.trim() || null;
     }
-    if (sortOrder !== undefined) {
-      data.sortOrder = Number(sortOrder);
-    }
+    // sortOrder removed
     if (isActive !== undefined) {
       data.isActive = Boolean(isActive);
     }
 
     const updated = await prisma.menuCategory.update({
-      where: { id: Number(id) },
+      where: { id },
       data,
     });
 
@@ -156,7 +149,7 @@ export const toggleMenuCategoryStatus = async (
     const { id } = req.params;
 
     const category = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!category) {
@@ -164,7 +157,7 @@ export const toggleMenuCategoryStatus = async (
     }
 
     const updated = await prisma.menuCategory.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { isActive: !category.isActive },
     });
 
@@ -190,11 +183,9 @@ export const deleteMenuCategory = async (
     const { id } = req.params;
 
     const category = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
+      where: { id },
       include: {
-        _count: {
-          select: { items: true },
-        },
+        items: true,
       },
     });
 
@@ -202,13 +193,13 @@ export const deleteMenuCategory = async (
       throw new NotFoundError("Menu category not found");
     }
 
-    if (category._count.items > 0) {
+    if (category.items.length > 0) {
       throw new ValidationError(
-        `Cannot delete category with ${category._count.items} menu items. Please delete or reassign the items first.`
+        `Cannot delete category with ${category.items.length} menu items. Please delete or reassign the items first.`
       );
     }
 
-    await prisma.menuCategory.delete({ where: { id: Number(id) } });
+    await prisma.menuCategory.delete({ where: { id } });
 
     res.json({
       success: true,

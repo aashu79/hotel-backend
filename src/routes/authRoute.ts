@@ -9,8 +9,16 @@ import {
 } from "../middleware/validation";
 import { otpRateLimiter, loginRateLimiter } from "../middleware/rateLimiter";
 import authController from "../controller/authController";
+import { authenticateToken } from "../middleware/auth";
 
 const router: Router = express.Router();
+
+// PROFILE ROUTE (fetch logged-in user profile)
+router.get("/profile", authenticateToken, authController.getProfile);
+// Fetch all staff and admin users (STAFF/ADMIN only)
+router.get("/users/staff", authenticateToken, authController.getStaffAndAdmins);
+// Fetch all customer users (STAFF/ADMIN only)
+router.get("/users/customers", authenticateToken, authController.getCustomers);
 
 // CUSTOMER ROUTES
 router.post(

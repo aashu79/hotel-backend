@@ -14,6 +14,114 @@ import {
 const prisma = new PrismaClient();
 
 class AuthController {
+  // Fetch all staff and admin users (STAFF/ADMIN only)
+  async getStaffAndAdmins(req: any, res: any): Promise<void> {
+    try {
+      if (
+        !req.user ||
+        (req.user.role !== "STAFF" && req.user.role !== "ADMIN")
+      ) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const users = await prisma.user.findMany({
+        where: { OR: [{ role: "STAFF" }, { role: "ADMIN" }] },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phoneNumber: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      res.json({
+        success: true,
+        users: users.map((u) => ({
+          ...u,
+          phoneNumber: u.phoneNumber ? u.phoneNumber.toString() : null,
+        })),
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch staff/admin users" });
+    }
+  }
+
+  // Fetch all customer users (STAFF/ADMIN only)
+  async getCustomers(req: any, res: any): Promise<void> {
+    try {
+      if (
+        !req.user ||
+        (req.user.role !== "STAFF" && req.user.role !== "ADMIN")
+      ) {
+        res.status(403).json({ success: false, message: "Forbidden" });
+        return;
+      }
+      const users = await prisma.user.findMany({
+        where: { role: "CUSTOMER" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phoneNumber: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      res.json({
+        success: true,
+        users: users.map((u) => ({
+          ...u,
+          phoneNumber: u.phoneNumber ? u.phoneNumber.toString() : null,
+        })),
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch customer users" });
+    }
+  }
+  // Fetch logged-in user's profile
+  async getProfile(req: any, res: any): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ success: false, message: "Unauthorized" });
+        return;
+      }
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phoneNumber: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+      res.json({
+        success: true,
+        user: {
+          ...user,
+          phoneNumber: user.phoneNumber ? user.phoneNumber.toString() : null,
+        },
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch profile" });
+    }
+  }
   // CUSTOMER: Send OTP for registration
   async sendOTPForRegistration(req: Request, res: Response): Promise<void> {
     try {

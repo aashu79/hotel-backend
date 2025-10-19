@@ -27,7 +27,6 @@ export const createMenuItem = async (
       isVegetarian,
       isAvailable,
       prepTimeMins,
-      sortOrder,
       categoryId,
     } = req.body;
 
@@ -38,13 +37,13 @@ export const createMenuItem = async (
     if (!price || isNaN(Number(price)) || Number(price) <= 0) {
       throw new ValidationError("Valid price is required");
     }
-    if (!categoryId || isNaN(Number(categoryId))) {
+    if (!categoryId || typeof categoryId !== "string") {
       throw new ValidationError("Valid category ID is required");
     }
 
     // Verify category exists
     const categoryExists = await prisma.menuCategory.findUnique({
-      where: { id: Number(categoryId) },
+      where: { id: categoryId },
     });
 
     if (!categoryExists) {
@@ -59,8 +58,7 @@ export const createMenuItem = async (
         isVegetarian: isVegetarian !== undefined ? Boolean(isVegetarian) : true,
         isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
         prepTimeMins: prepTimeMins ? Number(prepTimeMins) : null,
-        sortOrder: sortOrder !== undefined ? Number(sortOrder) : 0,
-        categoryId: Number(categoryId),
+        categoryId: categoryId,
         imageUrl: imageUrl || null,
       },
       include: {
@@ -95,7 +93,7 @@ export const getMenuItems = async (
     // Build filter conditions
     const where: any = {};
     if (categoryId) {
-      where.categoryId = Number(categoryId);
+      where.categoryId = categoryId;
     }
     if (isVegetarian !== undefined) {
       where.isVegetarian = isVegetarian === "true";
@@ -106,7 +104,7 @@ export const getMenuItems = async (
 
     const items = await prisma.menuItem.findMany({
       where,
-      orderBy: { sortOrder: "asc" },
+      orderBy: { name: "asc" },
       include: {
         category: {
           select: {
@@ -137,7 +135,7 @@ export const getMenuItemById = async (
     const { id } = req.params;
 
     const item = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id },
       include: {
         category: true,
         reviews: {
@@ -177,7 +175,7 @@ export const updateMenuItem = async (
 
     // Check if item exists
     const existingItem = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!existingItem) {
@@ -226,24 +224,22 @@ export const updateMenuItem = async (
     if (prepTimeMins !== undefined) {
       data.prepTimeMins = prepTimeMins ? Number(prepTimeMins) : null;
     }
-    if (sortOrder !== undefined) {
-      data.sortOrder = Number(sortOrder);
-    }
+    // sortOrder removed
     if (categoryId !== undefined) {
       const categoryExists = await prisma.menuCategory.findUnique({
-        where: { id: Number(categoryId) },
+        where: { id: categoryId },
       });
       if (!categoryExists) {
         throw new NotFoundError("Category not found");
       }
-      data.categoryId = Number(categoryId);
+      data.categoryId = categoryId;
     }
     if (imageUrl) {
       data.imageUrl = imageUrl;
     }
 
     const updated = await prisma.menuItem.update({
-      where: { id: Number(id) },
+      where: { id },
       data,
       include: {
         category: {
@@ -275,7 +271,7 @@ export const toggleMenuItemAvailability = async (
     const { id } = req.params;
 
     const item = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!item) {
@@ -283,7 +279,7 @@ export const toggleMenuItemAvailability = async (
     }
 
     const updated = await prisma.menuItem.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { isAvailable: !item.isAvailable },
     });
 
@@ -309,7 +305,7 @@ export const toggleMenuItemVegetarian = async (
     const { id } = req.params;
 
     const item = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!item) {
@@ -317,7 +313,7 @@ export const toggleMenuItemVegetarian = async (
     }
 
     const updated = await prisma.menuItem.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { isVegetarian: !item.isVegetarian },
     });
 
@@ -343,14 +339,14 @@ export const deleteMenuItem = async (
     const { id } = req.params;
 
     const item = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     if (!item) {
       throw new NotFoundError("Menu item not found");
     }
 
-    await prisma.menuItem.delete({ where: { id: Number(id) } });
+    await prisma.menuItem.delete({ where: { id } });
 
     res.json({
       success: true,

@@ -1,145 +1,259 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth";
 import prisma from "../config/db";
-import { ValidationError, AuthenticationError } from "../types/errors";
+import {
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+} from "../types/errors";
 
-export const createOrder = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+// Create a new order
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { orderArray, totalAmount } = req.body;
+    const { items, totalAmount, specialNotes } = req.body;
     const userId = req.user?.id;
-
-    if (!userId) {
-      throw new AuthenticationError("User authentication required");
-    }
-
-    if (!orderArray || !Array.isArray(orderArray) || orderArray.length === 0) {
+    if (!userId) throw new AuthenticationError("User authentication required");
+    if (!items || !Array.isArray(items) || items.length === 0) {
       throw new ValidationError("Order items are required");
     }
-
-    if (!totalAmount || totalAmount <= 0) {
+    if (!totalAmount || typeof totalAmount !== "number" || totalAmount <= 0) {
       throw new ValidationError("Valid total amount is required");
     }
-
+    // Validate each item
+    for (const item of items) {
+      if (!item.menuItemId || typeof item.menuItemId !== "string") {
+        throw new ValidationError(
+          "Each item must have a valid menuItemId (string UUID)"
+        );
+      }
+      if (
+        !item.quantity ||
+        typeof item.quantity !== "number" ||
+        item.quantity <= 0
+      ) {
+        throw new ValidationError("Each item must have a valid quantity");
+      }
+    }
     // Generate unique order number
     const orderNumber = `ORD-${Date.now()}-${userId}`;
-
-    // Use transaction to ensure data consistency
+    // Transaction: create order and items
     const result = await prisma.$transaction(async (tx) => {
-      // Create the order
       const order = await tx.order.create({
         data: {
-          userId,
+          userId: userId,
           totalAmount,
           orderNumber,
+          specialNotes,
         },
       });
-
-      // Create all order items
       const orderItems = await Promise.all(
-        orderArray.map(
-          async (item: {
-            menuItemId: number;
-            name: string;
-            price: number;
-            quantity: number;
-            total: number;
-          }) => {
-            const { menuItemId, price, quantity, total } = item;
-            return await tx.orderItem.create({
-              data: {
-                orderId: order.id,
-                menuItemId,
-                price,
-                quantity,
-                total,
-              },
-            });
+        items.map(async (item: { menuItemId: string; quantity: number }) => {
+          // Fetch menu item price from DB
+          const menuItem = await tx.menuItem.findUnique({
+            where: { id: item.menuItemId },
+            select: { price: true },
+          });
+          if (!menuItem) {
+            throw new ValidationError(
+              `Menu item not found: ${item.menuItemId}`
+            );
           }
-        )
+          const price = menuItem.price;
+          const total = price * item.quantity;
+          return await tx.orderItem.create({
+            data: {
+              orderId: order.id,
+              menuItemId: item.menuItemId,
+              price,
+              quantity: item.quantity,
+              total,
+            },
+          });
+        })
       );
-
       return { order, orderItems };
     });
-
-    // Return the created order with items
     res.status(201).json({
       success: true,
       message: "Order created successfully",
       order: {
-        orderId: result.order.id,
-        orderNumber: result.order.orderNumber,
-        orderDate: result.order.createdAt,
-        totalAmount: result.order.totalAmount,
-        status: result.order.status,
-        items: result.orderItems.map((item) => ({
-          id: item.id,
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.total,
-        })),
+        ...result.order,
+        items: result.orderItems,
       },
     });
   } catch (error) {
-    console.error("Error creating order:", error);
-    throw error;
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(400).json({ success: false, message });
   }
 };
 
-export const getOrders = async (
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+// Get all orders for the logged-in user
+export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-
-    if (!userId) {
-      throw new AuthenticationError("User authentication required");
-    }
-
-    // Get orders with their items grouped by order ID
+    if (!userId) throw new AuthenticationError("User authentication required");
     const orders = await prisma.order.findMany({
-      where: { userId },
+      where: { userId: userId },
       include: {
-        items: {
-          include: {
-            menuItem: true,
+        items: { include: { menuItem: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+        ? (error as any).message
+        : "Unknown error";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+// Get all orders (admin/staff only)
+export const getAllOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    if (!userId) throw new AuthenticationError("User authentication required");
+    if (userRole !== "ADMIN" && userRole !== "STAFF") {
+      throw new AuthorizationError(
+        "Access denied: Admin or Staff role required"
+      );
+    }
+    const orders = await prisma.order.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phoneNumber: true,
           },
         },
+        items: { include: { menuItem: true } },
       },
-      orderBy: {
-        createdAt: "desc", // Most recent orders first
-      },
+      orderBy: { createdAt: "desc" },
     });
 
-    // Group orders with their items
-    const groupedOrders = orders.map((order) => ({
-      orderId: order.id,
-      orderNumber: order.orderNumber,
-      orderDate: order.createdAt,
-      totalAmount: order.totalAmount,
-      status: order.status,
-      specialNotes: order.specialNotes,
-      items: order.items.map((item) => ({
-        id: item.id,
-        menuItemId: item.menuItemId,
-        menuItemName: item.menuItem.name,
-        quantity: item.quantity,
-        price: item.price,
-        total: item.total,
-      })),
+    // Convert BigInt phoneNumber to string for JSON serialization
+    const serializedOrders = orders.map((order) => ({
+      ...order,
+      user: {
+        ...order.user,
+        phoneNumber: order.user.phoneNumber
+          ? order.user.phoneNumber.toString()
+          : null,
+      },
     }));
 
-    res.status(200).json({
-      success: true,
-      message: "Orders fetched successfully",
-      orders: groupedOrders,
-    });
+    res.status(200).json({ success: true, orders: serializedOrders });
   } catch (error) {
-    console.error("Error fetching orders:", error);
-    throw error;
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+        ? (error as any).message
+        : "Unknown error";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+// Get a single order by ID (only for the owner or admin/staff)
+export const getOrderById = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    if (!id) throw new ValidationError("Order ID required");
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: { include: { menuItem: true } } },
+    });
+    if (!order) throw new ValidationError("Order not found");
+    if (
+      order.userId !== userId &&
+      userRole !== "ADMIN" &&
+      userRole !== "STAFF"
+    ) {
+      throw new AuthorizationError("Not authorized to view this order");
+    }
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+// Update order status (admin/staff only)
+export const updateOrderStatus = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userRole = req.user?.role;
+    if (!id) throw new ValidationError("Order ID required");
+    if (!status) throw new ValidationError("Order status required");
+
+    // Validate status against allowed enum values
+    const validStatuses = [
+      "PENDING",
+      "CONFIRMED",
+      "PREPARING",
+      "READY",
+      "COMPLETED",
+      "CANCELLED",
+    ];
+    if (!validStatuses.includes(status)) {
+      throw new ValidationError(
+        `Invalid status. Must be one of: ${validStatuses.join(", ")}`
+      );
+    }
+
+    if (userRole !== "ADMIN" && userRole !== "STAFF") {
+      throw new AuthorizationError("Not authorized to update order status");
+    }
+    const order = await prisma.order.update({
+      where: { id },
+      data: { status },
+    });
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+// Delete an order (only by owner or admin)
+export const deleteOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    if (!id) throw new ValidationError("Order ID required");
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (!order) throw new ValidationError("Order not found");
+    if (order.userId !== userId && userRole !== "ADMIN") {
+      throw new AuthorizationError("Not authorized to delete this order");
+    }
+    await prisma.order.delete({ where: { id } });
+    res.status(200).json({ success: true, message: "Order deleted" });
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+        ? (error as any).message
+        : "Unknown error";
+    res.status(400).json({ success: false, message });
   }
 };

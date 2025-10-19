@@ -12,7 +12,7 @@ datasource db {
 // ======================
 
 model User {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid())
   phoneNumber BigInt?  @unique // Optional for staff/admin
   name        String?
   email       String?  @unique // Optional for customers
@@ -40,7 +40,7 @@ enum UserRole {
 // ======================
 
 model RestaurantConfig {
-  id           Int     @id @default(1)
+  id           String  @id @default(uuid())
   name         String
   description  String?
   address      String?
@@ -72,11 +72,10 @@ model RestaurantConfig {
 // ======================
 
 model MenuCategory {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(uuid())
   name        String
   description String?
   isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
 
   items MenuItem[]
 
@@ -84,7 +83,7 @@ model MenuCategory {
 }
 
 model MenuItem {
-  id           Int     @id @default(autoincrement())
+  id           String  @id @default(uuid())
   name         String
   description  String?
   price        Float
@@ -92,8 +91,8 @@ model MenuItem {
   isAvailable  Boolean @default(true)
   prepTimeMins Int?
   imageUrl     String?
-  sortOrder    Int     @default(0)
-  categoryId   Int
+
+  categoryId String
 
   category   MenuCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
@@ -107,8 +106,8 @@ model MenuItem {
 // ======================
 
 model Order {
-  id           Int         @id @default(autoincrement())
-  userId       Int
+  id           String      @id @default(uuid())
+  userId       String
   orderNumber  String      @unique
   totalAmount  Float
   status       OrderStatus @default(PENDING)
@@ -132,9 +131,9 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id         Int   @id @default(autoincrement())
-  orderId    Int
-  menuItemId Int
+  id         String @id @default(uuid())
+  orderId    String
+  menuItemId String
   quantity   Int
   price      Float // price at time of order (snapshot)
   total      Float // quantity * price
@@ -150,8 +149,8 @@ model OrderItem {
 // ======================
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        String   @id @default(uuid())
+  userId    String
   rating    Int // 1-5
   comment   String?
   createdAt DateTime @default(now())
@@ -163,9 +162,9 @@ model Review {
 }
 
 model MenuItemReview {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  menuItemId Int
+  id         String   @id @default(uuid())
+  userId     String
+  menuItemId String
   rating     Int // 1-5
   comment    String?
   createdAt  DateTime @default(now())

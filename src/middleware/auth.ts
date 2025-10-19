@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export interface AuthenticatedRequest extends Request {
   user?: {
-    id: number;
+    id: string;
     role: "CUSTOMER" | "STAFF" | "ADMIN";
   };
 }
@@ -27,7 +27,7 @@ export const authenticateToken = async (
 
     const decoded = JWTService.verifyToken(token);
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: String(decoded.id) },
     });
 
     if (!user) {
@@ -35,7 +35,7 @@ export const authenticateToken = async (
     }
 
     req.user = {
-      id: user.id,
+      id: user.id as string,
       role: user.role as "CUSTOMER" | "STAFF" | "ADMIN",
     };
     next();

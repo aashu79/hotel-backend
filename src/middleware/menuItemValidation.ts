@@ -9,18 +9,16 @@ export const createMenuItemValidator = [
   body("isVegetarian").optional().isBoolean(),
   body("isAvailable").optional().isBoolean(),
   body("prepTimeMins").optional().isInt({ min: 0 }),
-  body("sortOrder").optional().isInt(),
-  body("categoryId").isInt().withMessage("Valid categoryId required"),
+  body("categoryId").isUUID().withMessage("Valid categoryId required"),
 ];
 
 export const updateMenuItemValidator = [
-  param("id").isInt().withMessage("Valid menu item id required"),
+  param("id").isUUID().withMessage("Valid menu item id required"),
   body("name").optional().isString(),
   body("description").optional().isString(),
   body("price").optional().isFloat({ gt: 0 }),
   body("isVegetarian").optional().isBoolean(),
   body("isAvailable").optional().isBoolean(),
   body("prepTimeMins").optional().isInt({ min: 0 }),
-  body("sortOrder").optional().isInt(),
-  body("categoryId").optional().isInt(),
+  body("categoryId").optional().isUUID(),
 ];
