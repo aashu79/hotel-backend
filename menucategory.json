@@ -1,0 +1,286 @@
+[
+  {
+    "name": "Dal Bhat",
+    "description": "Traditional Nepali meal with rice, lentil soup, curry, and pickles."
+  },
+  {
+    "name": "Momo",
+    "description": "Steamed or fried Nepali dumplings filled with meat or vegetables."
+  },
+  {
+    "name": "Thukpa",
+    "description": "Warm noodle soup with meat, egg, or vegetables, popular in Nepal."
+  },
+  {
+    "name": "Chowmein",
+    "description": "Stir-fried Nepali noodles cooked with vegetables and sauces."
+  },
+  {
+    "name": "Sel Roti",
+    "description": "Sweet, ring-shaped rice bread made during Nepali festivals."
+  },
+  {
+    "name": "Dhido",
+    "description": "Traditional Nepali porridge made from millet or buckwheat flour."
+  },
+  {
+    "name": "Gundruk",
+    "description": "Fermented leafy greens used in Nepali curries or soups."
+  },
+  {
+    "name": "Achar",
+    "description": "Spicy Nepali pickle made with tomatoes, sesame, or chili."
+  },
+  {
+    "name": "Thali Set",
+    "description": "Complete Nepali meal served with rice, dal, curry, and achar."
+  },
+  {
+    "name": "Newari Cuisine",
+    "description": "Special Newari dishes like Choila, Bara, and Yomari."
+  },
+
+  {
+    "name": "Butter Chicken",
+    "description": "Creamy tomato-based curry with tender chicken pieces."
+  },
+  {
+    "name": "Paneer Tikka",
+    "description": "Grilled cubes of paneer marinated in spices and yogurt."
+  },
+  {
+    "name": "Masala Dosa",
+    "description": "Crispy South Indian rice crepe stuffed with spiced potatoes."
+  },
+  {
+    "name": "Idli",
+    "description": "Steamed rice cakes served with chutney and sambar."
+  },
+  {
+    "name": "Samosa",
+    "description": "Deep-fried pastry filled with spiced potatoes or meat."
+  },
+  {
+    "name": "Chole Bhature",
+    "description": "Spicy chickpea curry served with fluffy fried bread."
+  },
+  {
+    "name": "Pani Puri",
+    "description": "Crispy hollow puris filled with tangy and spicy flavored water."
+  },
+  {
+    "name": "Pav Bhaji",
+    "description": "Mashed vegetable curry served with buttered bread rolls."
+  },
+  {
+    "name": "Biryani",
+    "description": "Fragrant rice dish layered with marinated meat or vegetables."
+  },
+  {
+    "name": "Tandoori Chicken",
+    "description": "Smoky chicken grilled in a traditional clay oven."
+  },
+  {
+    "name": "Dal Makhani",
+    "description": "Slow-cooked black lentils with butter and cream."
+  },
+  {
+    "name": "Naan",
+    "description": "Soft Indian bread baked in a tandoor oven."
+  },
+  {
+    "name": "Paratha",
+    "description": "Layered Indian flatbread fried with ghee or oil."
+  },
+  {
+    "name": "Rajma Chawal",
+    "description": "Red kidney bean curry served with steamed rice."
+  },
+  {
+    "name": "Palak Paneer",
+    "description": "Spinach-based curry cooked with paneer cubes."
+  },
+  {
+    "name": "Dhokla",
+    "description": "Soft and fluffy Gujarati steamed savory cake."
+  },
+  {
+    "name": "Pulao",
+    "description": "Fragrant rice cooked with mild spices and vegetables."
+  },
+  {
+    "name": "Kebabs",
+    "description": "Grilled skewers of marinated meat or vegetables."
+  },
+  {
+    "name": "Fish Curry",
+    "description": "Spicy coastal-style curry made with fish and coconut."
+  },
+  {
+    "name": "Rogan Josh",
+    "description": "Kashmiri-style rich red curry with tender mutton."
+  },
+  {
+    "name": "Hyderabadi Biryani",
+    "description": "Royal-style layered biryani with aromatic spices."
+  },
+  {
+    "name": "Gulab Jamun",
+    "description": "Soft fried milk balls soaked in sweet syrup."
+  },
+  {
+    "name": "Jalebi",
+    "description": "Crispy sweet coils soaked in sugar syrup."
+  },
+  {
+    "name": "Kheer",
+    "description": "Sweet rice pudding made with milk, sugar, and nuts."
+  },
+  {
+    "name": "Rasgulla",
+    "description": "Soft spongy cheese balls soaked in light syrup."
+  },
+
+  {
+    "name": "Pizza",
+    "description": "Flatbread topped with sauce, cheese, and vegetables or meat."
+  },
+  {
+    "name": "Burger",
+    "description": "Grilled patty sandwich served with cheese and salad."
+  },
+  {
+    "name": "Pasta",
+    "description": "Italian noodle dish cooked in creamy or tomato sauce."
+  },
+  {
+    "name": "Lasagna",
+    "description": "Layered pasta baked with cheese, sauce, and fillings."
+  },
+  {
+    "name": "Steak",
+    "description": "Grilled or pan-seared beef served with sides and sauce."
+  },
+  {
+    "name": "Grilled Chicken",
+    "description": "Tender chicken breast grilled with herbs and seasoning."
+  },
+  {
+    "name": "Fish and Chips",
+    "description": "Crispy fried fish served with French fries."
+  },
+  {
+    "name": "Sandwich",
+    "description": "Bread filled with cheese, vegetables, or meat."
+  },
+  { "name": "French Fries", "description": "Crispy deep-fried potato sticks." },
+  {
+    "name": "Omelette",
+    "description": "Beaten eggs cooked with vegetables or cheese."
+  },
+  {
+    "name": "Pancake",
+    "description": "Soft round cake served with syrup or butter."
+  },
+  {
+    "name": "Salad",
+    "description": "Fresh greens and vegetables tossed with dressing."
+  },
+  {
+    "name": "Soup",
+    "description": "Warm starter made from vegetables, chicken, or cream."
+  },
+  {
+    "name": "Garlic Bread",
+    "description": "Toasted bread flavored with garlic and butter."
+  },
+  { "name": "Brownie", "description": "Rich, fudgy chocolate dessert square." },
+  {
+    "name": "Ice Cream",
+    "description": "Cold creamy dessert in various flavors."
+  },
+  {
+    "name": "Cheesecake",
+    "description": "Smooth dessert made from cream cheese and biscuit base."
+  },
+  {
+    "name": "Pudding",
+    "description": "Soft dessert made with milk, sugar, and flavorings."
+  },
+  {
+    "name": "Roast Veggies",
+    "description": "Oven-roasted mixed vegetables with herbs."
+  },
+  {
+    "name": "Mashed Potatoes",
+    "description": "Creamy potato mash served as a side dish."
+  },
+
+  {
+    "name": "Milkshake",
+    "description": "Thick, creamy drink made from milk, ice cream, and flavorings."
+  },
+  {
+    "name": "Smoothie",
+    "description": "Healthy blended drink made from fruits and yogurt."
+  },
+  {
+    "name": "Cold Coffee",
+    "description": "Chilled coffee blended with milk and ice."
+  },
+  { "name": "Hot Coffee", "description": "Freshly brewed coffee served hot." },
+  {
+    "name": "Tea",
+    "description": "Classic hot beverage made with milk and tea leaves."
+  },
+  { "name": "Black Tea", "description": "Plain brewed tea without milk." },
+  {
+    "name": "Lassi",
+    "description": "Refreshing yogurt-based Indian drink, sweet or salted."
+  },
+  {
+    "name": "Buttermilk",
+    "description": "Light, spiced yogurt drink to cool the stomach."
+  },
+  {
+    "name": "Fresh Juice",
+    "description": "Cold-pressed fruit or vegetable juice."
+  },
+  {
+    "name": "Mocktail",
+    "description": "Non-alcoholic cocktail with fruity flavors."
+  },
+  {
+    "name": "Soft Drink",
+    "description": "Carbonated beverage served chilled."
+  },
+  {
+    "name": "Energy Drink",
+    "description": "Boosting beverage with caffeine or vitamins."
+  },
+  {
+    "name": "Hot Chocolate",
+    "description": "Warm creamy beverage made with milk and cocoa."
+  },
+  { "name": "Iced Tea", "description": "Cold, flavored tea served with ice." },
+  {
+    "name": "Lemonade",
+    "description": "Refreshing drink made from lemon juice, sugar, and water."
+  },
+  {
+    "name": "Coconut Water",
+    "description": "Natural and hydrating drink from tender coconuts."
+  },
+  {
+    "name": "Falooda",
+    "description": "Indian dessert drink made with milk, basil seeds, and ice cream."
+  },
+  {
+    "name": "Fruit Punch",
+    "description": "Mixed fruit juice drink served cold."
+  },
+  {
+    "name": "Water Bottle",
+    "description": "Clean and refreshing mineral water."
+  }
+]

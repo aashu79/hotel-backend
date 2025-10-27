@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ======================
+// USER (CUSTOMER) - OTP BASED
+// ======================
+
+model User {
+  id          String   @id @default(uuid())
+  phoneNumber BigInt?  @unique // Optional for staff/admin
+  name        String?
+  email       String?  @unique // Optional for customers
+  password    String? // Optional, but required for staff/admin
+  role        UserRole @default(CUSTOMER)
+  locationId  String? // Optional - only for STAFF/ADMIN
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location        Location?        @relation("LocationStaff", fields: [locationId], references: [id])
+  orders          Order[]
+  reviews         Review[]
+  menuItemReviews MenuItemReview[]
+
+  // Add validation: if role is STAFF or ADMIN, password must be present
+  // This validation needs to be handled in your application logic, not in the schema.
+}
+
+enum UserRole {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum RestaurantStatus {
+  OPEN
+  CLOSED
+  BUSY
+  MAINTENANCE
+}
+
+// ======================
+// RESTAURANT CONFIG (SINGLE ENTITY)
+// ======================
+
+model RestaurantConfig {
+  id             String           @id @default(uuid())
+  name           String
+  heroTitle      String?
+  heroText       String?
+  heroImageUrl   String?
+  description    String?
+  content        String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?          @default("India")
+  postalCode     String?
+  phoneNumber    String?
+  email          String?
+  website        String?
+  locationUrl    String?
+  openingHours   String?
+  status         RestaurantStatus @default(OPEN)
+  logoUrl        String?
+  bannerImageUrl String?
+  tags           String[]
+  facebookUrl    String?
+  instagramUrl   String?
+  twitterUrl     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("restaurant_config")
+}
+
+// ======================
+// MENU
+// ======================
+
+model MenuCategory {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+
+  items MenuItem[]
+
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String  @id @default(uuid())
+  name         String
+  description  String?
+  price        Float
+  isVegetarian Boolean @default(true)
+  isAvailable  Boolean @default(true)
+  prepTimeMins Int?
+  imageUrl     String?
+
+  categoryId String
+
+  category   MenuCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  reviews    MenuItemReview[]
+
+  @@map("menu_items")
+}
+
+// ======================
+// LOCATION (RESTAURANT BRANCHES)
+// ======================
+
+model Location {
+  id           String   @id @default(uuid())
+  name         String
+  address      String
+  city         String
+  state        String?
+  country      String   @default("India")
+  postalCode   String?
+  phoneNumber  String?
+  email        String?
+  isActive     Boolean  @default(true)
+  openingHours String?
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  staff            User[]            @relation("LocationStaff")
+  orders           Order[]
+  deliveryServices DeliveryService[]
+
+  @@map("locations")
+}
+
+// ======================
+// DELIVERY SERVICE (EXTERNAL LINKS)
+// ======================
+
+model DeliveryService {
+  id         String   @id @default(uuid())
+  name       String // e.g., "DoorDash", "UberEats", "Grubhub"
+  serviceUrl String // The link to the service
+  isActive   Boolean  @default(true)
+  locationId String // Which location this service is for
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relationship
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@map("delivery_services")
+}
+
+// ======================
+// ORDERS (PICKUP ONLY)
+// ======================
+
+model Order {
+  id           String      @id @default(uuid())
+  userId       String
+  orderNumber  String      @unique
+  totalAmount  Float
+  status       OrderStatus @default(PENDING)
+  specialNotes String?
+  locationId   String? // Optional initially for backward compatibility
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location?   @relation(fields: [locationId], references: [id])
+  items    OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model OrderItem {
+  id         String @id @default(uuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  price      Float // price at time of order (snapshot)
+  total      Float // quantity * price
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("order_items") // <--- This is crucial!
+}
+
+// ======================
+// REVIEWS (FOR INSIGHTS)
+// ======================
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  rating    Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId]) // one review per user
+  @@map("reviews")
+}
+
+model MenuItemReview {
+  id         String   @id @default(uuid())
+  userId     String
+  menuItemId String
+  rating     Int // 1-5
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, menuItemId])
+  @@map("menu_item_reviews")
+}

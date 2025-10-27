@@ -1,0 +1,632 @@
+[
+  {
+    "name": "Chatpate",
+    "description": "Traditional Nepali street food snack",
+    "price": 8.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 10,
+    "category": "STARTER"
+  },
+  {
+    "name": "Samosa",
+    "description": "Crispy fried pastry with savory filling",
+    "price": 3.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 8,
+    "category": "STARTER"
+  },
+  {
+    "name": "Samosa Set",
+    "description": "Samosa served with accompaniments",
+    "price": 7.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 10,
+    "category": "STARTER"
+  },
+  {
+    "name": "Aloo Chop",
+    "description": "Spiced potato fritters",
+    "price": 6.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 12,
+    "category": "STARTER"
+  },
+  {
+    "name": "Aloo Stick",
+    "description": "Crispy potato sticks",
+    "price": 6.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 10,
+    "category": "STARTER"
+  },
+  {
+    "name": "Pani Puri",
+    "description": "Crispy hollow shells filled with spiced water",
+    "price": 7.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 8,
+    "category": "STARTER"
+  },
+  {
+    "name": "Achar Chatpate",
+    "description": "Spicy pickled snack mix",
+    "price": 18.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 10,
+    "category": "STARTER"
+  },
+  {
+    "name": "Veggie Chowmein",
+    "description": "Stir-fried noodles with vegetables",
+    "price": 10.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Chicken Chowmein",
+    "description": "Stir-fried noodles with chicken",
+    "price": 12.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Pork Chowmein",
+    "description": "Stir-fried noodles with pork",
+    "price": 13.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Mutton Chowmein",
+    "description": "Stir-fried noodles with mutton",
+    "price": 13.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Shrimp Chowmein",
+    "description": "Stir-fried noodles with shrimp",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Seafood Mix Chowmein",
+    "description": "Stir-fried noodles with mixed seafood",
+    "price": 19.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Mutton Sukuti Chowmein",
+    "description": "Stir-fried noodles with dried mutton",
+    "price": 15.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Sukuti 2 Chowmein",
+    "description": "Special sukuti noodles",
+    "price": 19.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "CHOWMEIN"
+  },
+  {
+    "name": "Veggie Biryani",
+    "description": "Aromatic rice dish with vegetables",
+    "price": 9.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "BIRYANI"
+  },
+  {
+    "name": "Chicken Biryani",
+    "description": "Aromatic rice dish with chicken",
+    "price": 10.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 30,
+    "category": "BIRYANI"
+  },
+  {
+    "name": "Mutton Biryani",
+    "description": "Aromatic rice dish with mutton",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 35,
+    "category": "BIRYANI"
+  },
+  {
+    "name": "Chicken Sekuwa",
+    "description": "Grilled marinated chicken skewers",
+    "price": 12.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Mutton Sekuwa",
+    "description": "Grilled marinated mutton skewers",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 30,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Pork Sekuwa",
+    "description": "Grilled marinated pork skewers",
+    "price": 13.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Mutton Sukuti",
+    "description": "Dried and spiced mutton",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Sukuti 2",
+    "description": "Special dried meat preparation",
+    "price": 16.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Mutton Taas",
+    "description": "Spicy fried mutton chunks",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "SEKUWA/SUKUTI"
+  },
+  {
+    "name": "Chicken Curry",
+    "description": "Traditional chicken curry",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "CURRY"
+  },
+  {
+    "name": "Mutton Curry",
+    "description": "Traditional mutton curry",
+    "price": 12.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 30,
+    "category": "CURRY"
+  },
+  {
+    "name": "Pork Curry",
+    "description": "Traditional pork curry",
+    "price": 12.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 28,
+    "category": "CURRY"
+  },
+  {
+    "name": "Fish Curry",
+    "description": "Traditional fish curry",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 22,
+    "category": "CURRY"
+  },
+  {
+    "name": "Chicken Tikka Masala",
+    "description": "Creamy tomato-based chicken curry",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "CURRY"
+  },
+  {
+    "name": "Butter Chicken Masala",
+    "description": "Rich and creamy butter chicken",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "CURRY"
+  },
+  {
+    "name": "Veg Thali",
+    "description": "Complete vegetarian meal platter",
+    "price": 12.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "THALI"
+  },
+  {
+    "name": "Mutton Thali",
+    "description": "Complete meal platter with mutton",
+    "price": 14.59,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Chicken Thali",
+    "description": "Complete meal platter with chicken",
+    "price": 14.59,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Pork Thali",
+    "description": "Complete meal platter with pork",
+    "price": 14.59,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Fish Thali",
+    "description": "Complete meal platter with fish",
+    "price": 14.59,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Chicken Bhutwa Thali",
+    "description": "Complete meal platter with chicken bhutwa",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Mutton Bhutwa Thali",
+    "description": "Complete meal platter with mutton bhutwa",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 28,
+    "category": "THALI"
+  },
+  {
+    "name": "Pork Bhutwa Thali",
+    "description": "Complete meal platter with pork bhutwa",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 28,
+    "category": "THALI"
+  },
+  {
+    "name": "Sukuti 2 Thali",
+    "description": "Complete meal platter with sukuti",
+    "price": 17.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Local Chicken Bhutwa Thali",
+    "description": "Traditional local chicken bhutwa platter",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 30,
+    "category": "THALI"
+  },
+  {
+    "name": "Mutton Sukuti Thali",
+    "description": "Complete meal platter with mutton sukuti",
+    "price": 15.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "THALI"
+  },
+  {
+    "name": "Local Chicken Thali",
+    "description": "Traditional local chicken meal platter",
+    "price": 14.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 30,
+    "category": "THALI"
+  },
+  {
+    "name": "Chicken Fried Rice",
+    "description": "Fried rice with chicken",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "FRIED RICE"
+  },
+  {
+    "name": "Shrimp Fried Rice",
+    "description": "Fried rice with shrimp",
+    "price": 15.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "FRIED RICE"
+  },
+  {
+    "name": "Mutton Sukuti Fried Rice",
+    "description": "Fried rice with mutton sukuti",
+    "price": 16.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "FRIED RICE"
+  },
+  {
+    "name": "Sukuti 2 Fried Rice",
+    "description": "Special sukuti fried rice",
+    "price": 19.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "FRIED RICE"
+  },
+  {
+    "name": "Veg Momo Steam/Kothey",
+    "description": "Vegetable dumplings - steamed or pan-fried",
+    "price": 9.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Chicken Momo Steam/Kothey",
+    "description": "Chicken dumplings - steamed or pan-fried",
+    "price": 9.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Pork Momo Steam/Kothey",
+    "description": "Pork dumplings - steamed or pan-fried",
+    "price": 10.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Mutton Momo Steam/Kothey",
+    "description": "Mutton dumplings - steamed or pan-fried",
+    "price": 10.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Veg Jhol Momo",
+    "description": "Vegetable dumplings in soup",
+    "price": 10.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Chicken Jhol Momo",
+    "description": "Chicken dumplings in soup",
+    "price": 10.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Pork Jhol Momo",
+    "description": "Pork dumplings in soup",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Mutton Jhol Momo",
+    "description": "Mutton dumplings in soup",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 18,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Veg Tikka Fried Momo Masala",
+    "description": "Fried vegetable momos in tikka masala sauce",
+    "price": 12.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Chicken Tikka Fried Momo Masala",
+    "description": "Fried chicken momos in tikka masala sauce",
+    "price": 13.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 20,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Pressure Cooker Momo",
+    "description": "Special pressure cooked momos",
+    "price": 11.99,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 25,
+    "category": "DUMPLING/MOMO"
+  },
+  {
+    "name": "Garlic Naan",
+    "description": "Soft flatbread with garlic",
+    "price": 2.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 8,
+    "category": "SIDES"
+  },
+  {
+    "name": "Butter Naan",
+    "description": "Soft flatbread with butter",
+    "price": 2.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 8,
+    "category": "SIDES"
+  },
+  {
+    "name": "Plain Naan",
+    "description": "Traditional soft flatbread",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 8,
+    "category": "SIDES"
+  },
+  {
+    "name": "Plain Rice",
+    "description": "Steamed white rice",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "category": "SIDES"
+  },
+  {
+    "name": "Juju Dhau Lassi",
+    "description": "Traditional yogurt drink",
+    "price": 5.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 5,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Mango Lassi",
+    "description": "Sweet mango yogurt drink",
+    "price": 3.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 5,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Coke Bottle",
+    "description": "Coca-Cola bottle",
+    "price": 2.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Fanta Bottle",
+    "description": "Fanta orange bottle",
+    "price": 2.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Sprite Bottle",
+    "description": "Sprite lemon-lime bottle",
+    "price": 2.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Water Bottle",
+    "description": "Bottled water",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Can Drinks",
+    "description": "Assorted canned beverages",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Milk Tea",
+    "description": "Traditional milk tea",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 5,
+    "category": "DRINKS"
+  },
+  {
+    "name": "Black Tea",
+    "description": "Traditional black tea",
+    "price": 1.99,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 5,
+    "category": "DRINKS"
+  }
+]

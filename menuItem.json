@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Water Bottle",
+    "description": "Clean and refreshing mineral water to keep you hydrated throughout the day.",
+    "price": 50,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 1,
+    "imageUrl": null,
+    "categoryId": "178e7fe5-d01d-419b-941b-ac0a05e5949f"
+  },
+  {
+    "name": "Hot Chocolate",
+    "description": "Warm creamy beverage made with rich cocoa and steamed milk, topped with marshmallows.",
+    "price": 80,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 5,
+    "imageUrl": null,
+    "categoryId": "17e0935d-2d93-40bd-825b-58961a04dd33"
+  },
+  {
+    "name": "Naan",
+    "description": "Soft Indian bread baked in a tandoor, perfect for scooping up curries and sauces.",
+    "price": 60,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 7,
+    "imageUrl": null,
+    "categoryId": "18adc465-d05c-4fa2-9a8a-86adfe49a864"
+  },
+  {
+    "name": "Fish and Chips",
+    "description": "Crispy fried fish served with golden fries and tangy tartar sauce.",
+    "price": 350,
+    "isVegetarian": false,
+    "isAvailable": true,
+    "prepTimeMins": 15,
+    "imageUrl": null,
+    "categoryId": "1b2d000f-0b03-4a71-af53-d3c09c6bb236"
+  },
+  {
+    "name": "Black Tea",
+    "description": "Plain brewed tea without milk—classic, robust, and invigorating.",
+    "price": 40,
+    "isVegetarian": true,
+    "isAvailable": true,
+    "prepTimeMins": 3,
+    "imageUrl": null,
+    "categoryId": "21d0608a-46a0-4024-bc0a-40bffc9d3795"
+  }
+]
