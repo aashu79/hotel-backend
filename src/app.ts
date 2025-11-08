@@ -13,6 +13,7 @@ import deliveryServiceRoute from "./routes/deliveryServiceRoute";
 import paymentRoute from "./routes/paymentRoute";
 import stripeWebhookRoute from "./routes/stripeWebhookRoute";
 import taxServiceRateRoute from "./routes/taxServiceRateRoute";
+import paymentAndSalesRoute from "./routes/paymentAndSalesRoute";
 import { globalErrorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -57,6 +58,7 @@ app.use("/api/delivery-services", deliveryServiceRoute);
 app.use("/api/payments", paymentRoute);
 app.use("/api/stripe", stripeWebhookRoute);
 app.use("/api/tax-service-rates", taxServiceRateRoute);
+app.use("/api/admin", paymentAndSalesRoute);
 
 // Protected route example
 app.get("/api/protected", authenticateToken, (req: Request, res: Response) => {
