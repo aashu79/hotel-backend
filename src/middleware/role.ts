@@ -1,3 +1,14 @@
+export function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const user = req.user;
+  if (!user || user.role !== UserRole.ADMIN) {
+    return res.status(403).json({ message: "Access denied. Admin only." });
+  }
+  return next();
+}
 import { Request, Response, NextFunction } from "express";
 import { UserRole } from "@prisma/client";
 

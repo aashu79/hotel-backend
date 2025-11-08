@@ -48,6 +48,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
           orderNumber,
           specialNotes,
           locationId,
+          paid: false, // Order is unpaid by default
         },
       });
       const orderItems = await Promise.all(
@@ -83,6 +84,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
       order: {
         ...result.order,
         items: result.orderItems,
+        paid: result.order.paid,
       },
     });
   } catch (error) {
@@ -102,7 +104,7 @@ export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
         items: { include: { menuItem: true } },
       },
       orderBy: { createdAt: "desc" },
-    });
+    }); // 'paid' is now part of the model and will be included
     res.status(200).json({ success: true, orders });
   } catch (error) {
     const message =
@@ -172,6 +174,7 @@ export const getAllOrders = async (
     // Convert BigInt phoneNumber to string for JSON serialization
     const serializedOrders = orders.map((order) => ({
       ...order,
+      paid: order.paid, // Explicitly include paid status
       user: {
         ...order.user,
         phoneNumber: order.user.phoneNumber

@@ -10,6 +10,9 @@ import orderRoute from "./routes/orderRoute";
 import restaurantConfigRoute from "./routes/restaurantConfigRoute";
 import locationRoute from "./routes/locationRoute";
 import deliveryServiceRoute from "./routes/deliveryServiceRoute";
+import paymentRoute from "./routes/paymentRoute";
+import stripeWebhookRoute from "./routes/stripeWebhookRoute";
+import taxServiceRateRoute from "./routes/taxServiceRateRoute";
 import { globalErrorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -18,12 +21,13 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
-
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
 // Body parsing middleware with size limits
+// Stripe webhook needs raw body
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Trust proxy for accurate IP logging
@@ -50,6 +54,9 @@ app.use("/api/orders", orderRoute);
 app.use("/api/restaurant", restaurantConfigRoute);
 app.use("/api/locations", locationRoute);
 app.use("/api/delivery-services", deliveryServiceRoute);
+app.use("/api/payments", paymentRoute);
+app.use("/api/stripe", stripeWebhookRoute);
+app.use("/api/tax-service-rates", taxServiceRateRoute);
 
 // Protected route example
 app.get("/api/protected", authenticateToken, (req: Request, res: Response) => {

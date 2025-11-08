@@ -1,3 +1,16 @@
+// ======================
+// TAX & SERVICE RATES
+// ======================
+
+model TaxServiceRate {
+  id        String   @id @default(uuid())
+  name      String // e.g., "GST", "Service Charge"
+  rate      Float // e.g., 0.18 for 18%
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -175,6 +188,7 @@ model Order {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
+  paid     Boolean     @default(false)
   user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   location Location?   @relation(fields: [locationId], references: [id])
   items    OrderItem[]
@@ -235,4 +249,27 @@ model MenuItemReview {
 
   @@unique([userId, menuItemId])
   @@map("menu_item_reviews")
+}
+
+// ======================
+// PAYMENTS
+// ======================
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  orderId         String
+  stripePaymentId String
+  amount          Float
+  currency        String
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Sale {
+  id        String   @id @default(uuid())
+  orderId   String
+  amount    Float
+  createdAt DateTime @default(now())
 }

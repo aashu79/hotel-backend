@@ -18,6 +18,7 @@
     "multer": "^2.0.2",
     "prisma": "^6.17.1",
     "rate-limiter-flexible": "^8.0.1",
+    "stripe": "^19.2.0",
     "twilio": "^5.10.2"
   },
   "devDependencies": {
