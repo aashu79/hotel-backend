@@ -18,7 +18,18 @@ import { globalErrorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
 
+import morgan from "morgan";
+
 const app = express();
+
+// Use morgan for HTTP request logging
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    morgan(":method :url :status :res[content-length] - :response-time ms")
+  );
+} else {
+  app.use(morgan("dev"));
+}
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -81,6 +92,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
+
 const server = app.listen(PORT, () => {
   console.log(
     `Server running on port ${PORT} in ${
@@ -91,14 +103,14 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
-  console.log("SIGTERM received. Shutting down gracefully...");
+  console.warn("SIGTERM received. Shutting down gracefully...");
   server.close(() => {
     console.log("Process terminated");
   });
 });
 
 process.on("SIGINT", () => {
-  console.log("SIGINT received. Shutting down gracefully...");
+  console.warn("SIGINT received. Shutting down gracefully...");
   server.close(() => {
     console.log("Process terminated");
   });

@@ -84,41 +84,6 @@ Comprehensive controller with 15 functions:
 
 ### Step 1: Apply Database Migration
 
-```bash
-# Navigate to your project directory
-cd e:\rest\backend\Himilayan_Resto_Backend
-
-# Option A: Create migration file first (review before applying)
-npx prisma migrate dev --create-only --name add_payment_and_sale_relations
-
-# Review the generated SQL in prisma/migrations/[timestamp]_add_payment_and_sale_relations/migration.sql
-
-# Then deploy it
-npx prisma migrate deploy
-
-# Option B: Create and apply migration in one step (development)
-npx prisma migrate dev --name add_payment_and_sale_relations
-
-# Option C: For production
-npx prisma migrate deploy
-```
-
-### Step 2: Generate Prisma Client
-
-```bash
-npx prisma generate
-```
-
-### Step 3: Restart Your Server
-
-```bash
-npm run dev
-# or
-npm start
-```
-
----
-
 ## 🎯 Key Features Implemented
 
 ### Advanced Filtering System

@@ -1,8 +1,5 @@
-export function requireAdmin(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+import { logger } from "../utils/logger";
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const user = req.user;
   if (!user || user.role !== UserRole.ADMIN) {
     return res.status(403).json({ message: "Access denied. Admin only." });
@@ -18,7 +15,7 @@ export function requireStaffOrAdmin(
   next: NextFunction
 ) {
   const user = req.user;
-  console.log("User in requireStaffOrAdmin:", user);
+  logger.debug("User in requireStaffOrAdmin:", user);
   if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.STAFF)) {
     return res
       .status(403)

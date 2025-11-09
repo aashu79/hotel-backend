@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import {
@@ -42,9 +43,9 @@ const logError = (err: Error, req: Request): void => {
     },
   };
 
-  console.error("=== ERROR LOG ===");
-  console.error(JSON.stringify(errorDetails, null, 2));
-  console.error("==================");
+  logger.error("=== ERROR LOG ===");
+  logger.error(JSON.stringify(errorDetails, null, 2));
+  logger.error("==================");
 };
 
 // Handle Prisma errors
@@ -148,9 +149,9 @@ export const catchAsync = (fn: Function) => {
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err: Error) => {
-  console.error("UNHANDLED REJECTION! 💥 Shutting down...");
-  console.error(err.name, err.message);
-  console.error(err.stack);
+  logger.error("UNHANDLED REJECTION! 💥 Shutting down...");
+  logger.error(`${err.name} ${err.message}`);
+  logger.error(err.stack || "No stack trace available");
 
   // Close server gracefully
   process.exit(1);
@@ -158,9 +159,9 @@ process.on("unhandledRejection", (err: Error) => {
 
 // Handle uncaught exceptions
 process.on("uncaughtException", (err: Error) => {
-  console.error("UNCAUGHT EXCEPTION! 💥 Shutting down...");
-  console.error(err.name, err.message);
-  console.error(err.stack);
+  logger.error("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  logger.error(`${err.name} ${err.message}`);
+  logger.error(err.stack || "No stack trace available");
 
   process.exit(1);
 });

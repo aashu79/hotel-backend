@@ -156,13 +156,30 @@ export const getAllPayments = async (req: Request, res: Response) => {
       prisma.payment.count({ where }),
     ]);
 
+    // Convert BigInt values to string recursively
+    function convertBigIntToString(obj: any): any {
+      if (Array.isArray(obj)) {
+        return obj.map(convertBigIntToString);
+      } else if (obj && typeof obj === "object") {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [
+            key,
+            convertBigIntToString(value),
+          ])
+        );
+      } else if (typeof obj === "bigint") {
+        return obj.toString();
+      }
+      return obj;
+    }
+
     res.status(200).json({
       success: true,
-      data: payments,
+      data: convertBigIntToString(payments),
       pagination: {
         currentPage: pageNum,
-        totalPages: Math.ceil(total / limitNum),
-        totalItems: total,
+        totalPages: Math.ceil(Number(total) / limitNum),
+        totalItems: Number(total),
         itemsPerPage: limitNum,
       },
     });
@@ -237,13 +254,30 @@ export const getPaymentById = async (req: Request, res: Response) => {
       });
     }
 
-    res.status(200).json({
+    // Convert BigInt values to string recursively
+    function convertBigIntToString(obj: any): any {
+      if (Array.isArray(obj)) {
+        return obj.map(convertBigIntToString);
+      } else if (obj && typeof obj === "object") {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [
+            key,
+            convertBigIntToString(value),
+          ])
+        );
+      } else if (typeof obj === "bigint") {
+        return obj.toString();
+      }
+      return obj;
+    }
+
+    return res.status(200).json({
       success: true,
-      data: payment,
+      data: convertBigIntToString(payment),
     });
   } catch (error: any) {
     console.error("Error fetching payment:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching payment",
       error: error.message,
@@ -311,13 +345,30 @@ export const getPaymentsByUser = async (req: Request, res: Response) => {
       prisma.payment.count({ where: { userId } }),
     ]);
 
+    // Convert BigInt values to string recursively
+    function convertBigIntToString(obj: any): any {
+      if (Array.isArray(obj)) {
+        return obj.map(convertBigIntToString);
+      } else if (obj && typeof obj === "object") {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [
+            key,
+            convertBigIntToString(value),
+          ])
+        );
+      } else if (typeof obj === "bigint") {
+        return obj.toString();
+      }
+      return obj;
+    }
+
     res.status(200).json({
       success: true,
-      data: payments,
+      data: convertBigIntToString(payments),
       pagination: {
         currentPage: pageNum,
-        totalPages: Math.ceil(total / limitNum),
-        totalItems: total,
+        totalPages: Math.ceil(Number(total) / limitNum),
+        totalItems: Number(total),
         itemsPerPage: limitNum,
       },
     });
@@ -508,13 +559,30 @@ export const getAllSales = async (req: Request, res: Response) => {
       prisma.sale.count({ where }),
     ]);
 
+    // Convert BigInt values to string recursively
+    function convertBigIntToString(obj: any): any {
+      if (Array.isArray(obj)) {
+        return obj.map(convertBigIntToString);
+      } else if (obj && typeof obj === "object") {
+        return Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [
+            key,
+            convertBigIntToString(value),
+          ])
+        );
+      } else if (typeof obj === "bigint") {
+        return obj.toString();
+      }
+      return obj;
+    }
+
     res.status(200).json({
       success: true,
-      data: sales,
+      data: convertBigIntToString(sales),
       pagination: {
         currentPage: pageNum,
-        totalPages: Math.ceil(total / limitNum),
-        totalItems: total,
+        totalPages: Math.ceil(Number(total) / limitNum),
+        totalItems: Number(total),
         itemsPerPage: limitNum,
       },
     });
@@ -589,13 +657,13 @@ export const getSaleById = async (req: Request, res: Response) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: sale,
     });
   } catch (error: any) {
     console.error("Error fetching sale:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error fetching sale",
       error: error.message,

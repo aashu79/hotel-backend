@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import twilio from "twilio";
 import { Request, Response } from "express";
 
@@ -24,7 +25,7 @@ class OTPService implements OTPServiceInterface {
 
   async sendOTP(phoneNumber: string, otp: string): Promise<boolean> {
     if (process.env.NODE_ENV === "development") {
-      console.log(`✅ OTP for ${phoneNumber}: ${otp}`);
+      logger.info(`✅ OTP for ${phoneNumber}: ${otp}`);
       return true;
     }
 
@@ -42,14 +43,14 @@ class OTPService implements OTPServiceInterface {
         .verifications.create({ to: phoneNumber, channel: "sms" });
       return true;
     } catch (error) {
-      console.error("Twilio Error:", error);
+      logger.error("Twilio Error:", error);
       throw new Error("Failed to send OTP");
     }
   }
 
   async verifyOTP(phoneNumber: string, code: string): Promise<boolean> {
     if (process.env.NODE_ENV === "development") {
-      console.log(`✅ Verifying OTP for ${phoneNumber}: ${code}`);
+      logger.info(`✅ Verifying OTP for ${phoneNumber}: ${code}`);
       return true;
     }
     if (!this.client) {
@@ -61,7 +62,7 @@ class OTPService implements OTPServiceInterface {
         .verificationChecks.create({ to: phoneNumber, code: code });
       return verificationCheck.status === "approved";
     } catch (error) {
-      console.error("Twilio Error:", error);
+      logger.error("Twilio Error:", error);
       throw new Error("Failed to verify OTP");
     }
   }
